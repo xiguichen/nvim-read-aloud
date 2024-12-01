@@ -61,13 +61,15 @@ function M.read_selected_text(range, lang)
   }):start()
 end
 
--- Define commands
-vim.api.nvim_create_user_command('ReadCurrentLine', function(opts)
-  M.read_current_line(opts.args)
-end, { nargs = '?' })  -- nargs = '?' allows zero or one argument
+-- Setup function to define commands
+function M.setup()
+  vim.api.nvim_create_user_command('ReadCurrentLine', function(opts)
+    M.read_current_line(opts.args)
+  end, { nargs = '?' })  -- nargs = '?' allows zero or one argument
 
 vim.api.nvim_create_user_command('ReadSelectedText', function(opts)
   M.read_selected_text({opts.line1, opts.line2}, opts.args)
 end, { range = true, nargs = '?' })  -- nargs = '?' allows zero or one argument
+end
 
 return M
