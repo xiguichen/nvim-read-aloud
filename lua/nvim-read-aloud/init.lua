@@ -19,15 +19,19 @@ function M.read_current_line(lang)
     local encoded_line = url_encode(line)
     local tts_url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=" ..
     encoded_line .. "&tl=" .. lang
+    local temp_file = vim.fn.tempname() .. ".mp3"
     Job:new({
         command = 'curl',
-        args = { '-s', tts_url, '-o', 'output.mp3' },
+        args = { '-s', tts_url, '-o', temp_file },
         on_exit = function(j, return_val)
             if return_val == 0 then
                 Job:new({
                     command = 'mpv',
-                    args = { 'output.mp3' },
+                    args = { temp_file },
                     detached = true,
+                    on_exit = function()
+                        os.remove(temp_file)
+                    end,
                 }):start()
             else
                 error("Failed to fetch TTS audio")
@@ -46,15 +50,19 @@ function M.read_selected_text(range, lang)
     local encoded_text = url_encode(text)
     local tts_url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=" ..
     encoded_text .. "&tl=" .. lang
+    local temp_file = os.tmpname() .. ".mp3"
     Job:new({
         command = 'curl',
-        args = { '-s', tts_url, '-o', 'output.mp3' },
+        args = { '-s', tts_url, '-o', temp_file },
         on_exit = function(j, return_val)
             if return_val == 0 then
                 Job:new({
                     command = 'mpv',
-                    args = { 'output.mp3' },
+                    args = { temp_file },
                     detached = true,
+                    on_exit = function()
+                        os.remove(temp_file)
+                    end,
                 }):start()
             else
                 error("Failed to fetch TTS audio")
